@@ -2,34 +2,46 @@ import React, { useState } from "react";
 import Question from "./Question";
 import Timer from "./Timer";
 
-function Quiz({ questions }) {
+function Quiz({ questions, username }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-  const [showResults, setShowResults] = useState(false);
+  const [isQuizOver, setIsQuizOver] = useState(false);
 
   const handleAnswer = (isCorrect) => {
     if (isCorrect) setScore(score + 1);
 
-    const nextQuestion = currentQuestion + 1;
-    if (nextQuestion < questions.length) {
-      setCurrentQuestion(nextQuestion);
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
     } else {
-      setShowResults(true);
+      setIsQuizOver(true); // End the quiz
     }
+  };
+
+  const handlePlayAgain = () => {
+    setCurrentQuestion(0);
+    setScore(0);
+    setIsQuizOver(false);
   };
 
   return (
     <div>
-      {showResults ? (
+      <h2>Welcome, {username}!</h2>
+      {isQuizOver ? (
         <div>
-          <h2>Your Score: {score}/{questions.length}</h2>
+          <h3>Quiz Over!</h3>
+          <p>Your Score: {score}/{questions.length}</p>
+          <button onClick={handlePlayAgain}>Play Again</button>
         </div>
       ) : (
         <div>
-          <Timer key={currentQuestion} duration={10} onTimeUp={() => handleAnswer(false)} />
           <Question
             question={questions[currentQuestion]}
-            handleAnswer={handleAnswer}
+            onAnswer={handleAnswer}
+          />
+          <Timer
+            key={currentQuestion} // Reset the timer on each question
+            duration={10}
+            onTimeUp={() => handleAnswer(false)}
           />
         </div>
       )}
